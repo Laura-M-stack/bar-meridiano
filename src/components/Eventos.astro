@@ -1,0 +1,25 @@
+---
+import Divider from './Divider.astro';
+import { EVENTOS } from '../data/site';
+---
+
+<section class="section" id="eventos" aria-labelledby="eventos-title">
+  <div class="container">
+    <div class="section__head">
+      <p class="eyebrow">Noches</p>
+      <h2 class="section__title" id="eventos-title">Música cada semana</h2>
+      <Divider />
+    </div>
+    <div class="eventos">
+      {
+        EVENTOS.map((e) => (
+          <article class="frame evento">
+            <p class="evento__day">{e.dia}</p>
+            <h3 class="evento__title">{e.titulo}</h3>
+            <p>{e.texto}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

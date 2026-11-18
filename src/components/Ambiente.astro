@@ -1,0 +1,39 @@
+---
+import ArchArt from './ArchArt.astro';
+import Divider from './Divider.astro';
+
+const hechos = [
+  { valor: '4', etiqueta: 'Cócteles de autor' },
+  { valor: '19 h', etiqueta: 'Hora de apertura' },
+  { valor: '3', etiqueta: 'Noches de música' },
+];
+---
+
+<section class="section section--black" id="ambiente" aria-labelledby="ambiente-title">
+  <div class="container ambiente">
+    <div class="ambiente__text">
+      <p class="eyebrow">El lugar</p>
+      <h2 class="section__title" id="ambiente-title">Una barra de otra época</h2>
+      <Divider />
+      <p>
+        Bar Meridiano toma su estética de los grandes hoteles de los años veinte: latón pulido, terciopelo verde y
+        luz baja. Es un lugar para quedarse, conversar y pedir la segunda ronda sin apuro.
+      </p>
+      <p>
+        Cada cóctel se prepara a la vista, con técnica clásica y productos de estación. La música acompaña sin tapar
+        la charla.
+      </p>
+      <ul class="facts">
+        {
+          hechos.map((h) => (
+            <li>
+              <span class="fact__value gold-text">{h.valor}</span>
+              <span class="fact__label">{h.etiqueta}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <ArchArt />
+  </div>
+</section>

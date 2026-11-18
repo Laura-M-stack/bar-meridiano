@@ -1,0 +1,28 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+
+// Abanico Art Déco: rayos desde el centro de la base, dos arcos y una línea de base.
+const rayos = Array.from({ length: 7 }, (_, i) => {
+  const a = Math.PI + (Math.PI * (i + 1)) / 8;
+  return { x: 32 + 26 * Math.cos(a), y: 50 + 26 * Math.sin(a) };
+});
+---
+
+<svg
+  class={className}
+  viewBox="0 0 64 64"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d="M5 50a27 27 0 0 1 54 0" />
+  <path d="M17 50a15 15 0 0 1 30 0" />
+  <path d="M3 54h58" />
+  {rayos.map((r) => <path d={`M32 50 L${r.x.toFixed(2)} ${r.y.toFixed(2)}`} />)}
+</svg>

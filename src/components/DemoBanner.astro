@@ -1,0 +1,14 @@
+---
+import { site } from '../data/site';
+---
+
+{
+  site.isDemo && (
+    <div class="demo" role="note">
+      Sitio de demostración: {site.name} es un negocio ficticio. Diseño y desarrollo:{' '}
+      <a href="https://laura-m-stack.github.io/laura-portfolio/" target="_blank" rel="noopener noreferrer">
+        Laura Moyano
+      </a>
+    </div>
+  )
+}

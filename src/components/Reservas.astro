@@ -1,0 +1,165 @@
+---
+import Divider from './Divider.astro';
+import { DIAS, HORARIO, hhmm } from '../lib/horario';
+import { MAX_PERSONAS } from '../lib/reserva';
+
+// Lunes primero, que es como se lee un horario en Argentina.
+const orden = [1, 2, 3, 4, 5, 6, 0];
+const filas = orden.map((d) => {
+  const f = HORARIO[d];
+  return {
+    dia: d,
+    nombre: (DIAS[d] as string).charAt(0).toUpperCase() + (DIAS[d] as string).slice(1),
+    texto: f ? `${hhmm(f.abre)} a ${hhmm(f.cierra)}` : 'Cerrado',
+  };
+});
+const personas = Array.from({ length: MAX_PERSONAS }, (_, i) => i + 1);
+---
+
+<section class="section section--black" id="reservas" aria-labelledby="reservas-title">
+  <div class="container">
+    <div class="frame reservas">
+      <div class="reservas__info">
+        <p class="eyebrow">Reservas</p>
+        <h2 class="section__title" id="reservas-title">Reserve su mesa</h2>
+        <Divider />
+        <p>
+          Complete el formulario y le abriremos WhatsApp con el mensaje listo para enviar. Para grupos de más de {MAX_PERSONAS} personas, escríbanos directamente.
+        </p>
+        <dl class="horario" aria-label="Horarios de atención">
+          {
+            filas.map((f) => (
+              <div class="horario__row" data-dia={f.dia} data-hoy="false">
+                <dt>{f.nombre}</dt>
+                <dd>{f.texto}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <form class="form" id="reserva-form" novalidate data-whatsapp="5491100000000">
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" autocomplete="name" required aria-describedby="err-nombre" />
+          <p class="field__error" id="err-nombre"></p>
+        </div>
+
+        <div class="field">
+          <label for="personas">Personas</label>
+          <select id="personas" name="personas" required aria-describedby="err-personas">
+            {personas.map((n) => <option value={n} selected={n === 2}>{n}</option>)}
+          </select>
+          <p class="field__error" id="err-personas"></p>
+        </div>
+
+        <div class="field">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" name="fecha" type="date" required aria-describedby="err-fecha" />
+          <p class="field__error" id="err-fecha"></p>
+        </div>
+
+        <div class="field">
+          <label for="hora">Hora</label>
+          <select id="hora" name="hora" required aria-describedby="err-hora" disabled>
+            <option value="">Elija primero una fecha</option>
+          </select>
+          <p class="field__error" id="err-hora"></p>
+        </div>
+
+        <div class="field field--full">
+          <label for="notas">Notas (opcional)</label>
+          <textarea id="notas" name="notas" rows="3" maxlength="300" placeholder="Cumpleaños, alergias, mesa tranquila…"></textarea>
+        </div>
+
+        <div class="form__actions">
+          <button class="btn btn--gold" type="submit">Enviar por WhatsApp</button>
+          <p class="form__hint" data-form-hint>
+            Sitio de demostración: el número de WhatsApp es ficticio, así que la reserva no llegará a nadie.
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { hoyISO, horariosPara, validar, whatsappUrl, type Errores, type Reserva } from '../lib/reserva';
+  import { relojLocal } from '../lib/horario';
+
+  const form = document.querySelector<HTMLFormElement>('#reserva-form');
+  const fecha = document.querySelector<HTMLInputElement>('#fecha');
+  const hora = document.querySelector<HTMLSelectElement>('#hora');
+
+  if (form && fecha && hora) {
+    const campos = ['nombre', 'personas', 'fecha', 'hora'] as const;
+    const telefono = form.dataset.whatsapp ?? '';
+
+    // Fecha mínima: hoy, en hora de Buenos Aires (no la del navegador).
+    fecha.min = hoyISO();
+
+    // Resaltar el día de hoy en la tabla de horarios.
+    const { dia } = relojLocal(new Date());
+    document.querySelectorAll<HTMLElement>('.horario__row').forEach((fila) => {
+      fila.dataset.hoy = String(Number(fila.dataset.dia) === dia);
+    });
+
+    function cargarHorarios() {
+      if (!hora || !fecha) return;
+      const previo = hora.value;
+      const lista = horariosPara(fecha.value);
+      hora.replaceChildren();
+      if (!fecha.value) {
+        hora.append(new Option('Elija primero una fecha', ''));
+      } else if (lista.length === 0) {
+        hora.append(new Option('Sin servicio ese día', ''));
+      } else {
+        hora.append(new Option('Elija un horario', ''));
+        for (const h of lista) hora.append(new Option(`${h} h`, h));
+        if (lista.includes(previo)) hora.value = previo;
+      }
+      hora.disabled = lista.length === 0;
+    }
+
+    function leer(): Reserva {
+      const datos = new FormData(form!);
+      return {
+        nombre: String(datos.get('nombre') ?? ''),
+        fecha: String(datos.get('fecha') ?? ''),
+        hora: String(datos.get('hora') ?? ''),
+        personas: Number(datos.get('personas')),
+        notas: String(datos.get('notas') ?? ''),
+      };
+    }
+
+    function mostrar(errores: Errores) {
+      for (const campo of campos) {
+        const input = form!.elements.namedItem(campo) as HTMLElement | null;
+        const msg = document.getElementById(`err-${campo}`);
+        const texto = errores[campo] ?? '';
+        if (msg) msg.textContent = texto;
+        input?.setAttribute('aria-invalid', String(Boolean(texto)));
+      }
+    }
+
+    fecha.addEventListener('change', () => {
+      cargarHorarios();
+      mostrar({});
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const reserva = leer();
+      const errores = validar(reserva);
+      mostrar(errores);
+      const primero = campos.find((c) => errores[c]);
+      if (primero) {
+        (form.elements.namedItem(primero) as HTMLElement | null)?.focus();
+        return;
+      }
+      window.open(whatsappUrl(telefono, reserva), '_blank', 'noopener');
+    });
+
+    cargarHorarios();
+  }
+</script>

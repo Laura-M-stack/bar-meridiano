@@ -1,0 +1,28 @@
+---
+import Fan from './Fan.astro';
+import Icon from './Icon.astro';
+import Divider from './Divider.astro';
+import { site } from '../data/site';
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <Fan class="hero__medallion" />
+    <p class="footer__name">{site.name}</p>
+    <Divider />
+    <ul class="footer__links">
+      <li><a href="#carta">Carta</a></li>
+      <li><a href="#eventos">Eventos</a></li>
+      <li><a href="#reservas">Reservas</a></li>
+      <li>
+        <a href={`https://instagram.com/${site.instagram}`} target="_blank" rel="noopener noreferrer">
+          <Icon name="instagram" size={18} />&nbsp;@{site.instagram}
+        </a>
+      </li>
+    </ul>
+    <p class="footer__small">{site.neighborhood}. Prohibida la venta de bebidas alcohólicas a menores de 18 años.</p>
+    <p class="footer__small">
+      Sitio de demostración. {site.name} es un negocio ficticio. Diseño y desarrollo: Laura Moyano.
+    </p>
+  </div>
+</footer>

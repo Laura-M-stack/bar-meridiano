@@ -1,0 +1,61 @@
+---
+import Fan from './Fan.astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const links = [
+  { href: '#carta', label: 'Carta' },
+  { href: '#ambiente', label: 'Ambiente' },
+  { href: '#eventos', label: 'Eventos' },
+];
+---
+
+<header class="header">
+  <div class="container header__bar">
+    <a class="brand" href="#top" aria-label={`${site.name}, inicio`}>
+      <Fan class="brand__mark" />
+      <span class="brand__name">Meridiano</span>
+    </a>
+
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir el menú" data-menu-btn>
+      <span data-icon-open><Icon name="menu" size={24} /></span>
+      <span data-icon-close hidden><Icon name="close" size={24} /></span>
+    </button>
+
+    <nav class="nav" id="menu" aria-label="Principal" data-menu>
+      {links.map((l) => <a class="nav__link" href={l.href}>{l.label}</a>)}
+      <a class="btn btn--gold nav__cta" href="#reservas">Reservar</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const iconOpen = document.querySelector<HTMLElement>('[data-icon-open]');
+  const iconClose = document.querySelector<HTMLElement>('[data-icon-close]');
+
+  function setOpen(open: boolean) {
+    if (!btn || !menu || !iconOpen || !iconClose) return;
+    menu.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Cerrar el menú' : 'Abrir el menú');
+    iconOpen.hidden = open;
+    iconClose.hidden = !open;
+  }
+
+  btn?.addEventListener('click', () => setOpen(btn.getAttribute('aria-expanded') !== 'true'));
+  menu?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btn?.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      btn.focus();
+    }
+  });
+  // Si se agranda la ventana con el menú abierto, no dejar el estado colgado.
+  window.matchMedia('(min-width: 881px)').addEventListener('change', (e) => {
+    if (e.matches) setOpen(false);
+  });
+</script>

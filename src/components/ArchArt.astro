@@ -1,0 +1,29 @@
+---
+// Ilustración decorativa: arcos concéntricos con rayos, a la manera de un ventanal Art Déco.
+const arcos = [0, 22, 44, 66].map((d) => `M${20 + d} 500V210A${180 - d} ${180 - d} 0 0 1 ${380 - d} 210V500`);
+const interior = arcos[3] as string;
+const rayos = Array.from({ length: 11 }, (_, i) => {
+  const a = Math.PI + (Math.PI * (i + 1)) / 12;
+  return { x: 200 + 320 * Math.cos(a), y: 500 + 320 * Math.sin(a) };
+});
+---
+
+<svg
+  class="ambiente__art"
+  viewBox="0 0 400 520"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <clipPath id="arco-interior"><path d={`${interior}Z`} /></clipPath>
+  </defs>
+  {arcos.map((d) => <path d={d} />)}
+  <g clip-path="url(#arco-interior)" stroke-opacity="0.7">
+    {rayos.map((r) => <path d={`M200 500 L${r.x.toFixed(1)} ${r.y.toFixed(1)}`} />)}
+  </g>
+  <path d="M0 500h400M24 512h352" />
+  <path d="M200 112 211 126 200 140 189 126Z" fill="currentColor" stroke="none" />
+</svg>

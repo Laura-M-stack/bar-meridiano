@@ -1,0 +1,42 @@
+---
+import Divider from './Divider.astro';
+import { CARTA, pesos } from '../data/site';
+---
+
+<section class="section" id="carta" aria-labelledby="carta-title">
+  <div class="container">
+    <div class="section__head">
+      <p class="eyebrow">La carta</p>
+      <h2 class="section__title" id="carta-title">Cócteles y algo más</h2>
+      <Divider />
+      <p class="section__lead">
+        Recetas clásicas bien hechas y cuatro cócteles propios, con hielo cristalino y guarniciones frescas.
+      </p>
+    </div>
+
+    <div class="frame">
+      <div class="carta">
+        {
+          CARTA.map((seccion) => (
+            <section aria-labelledby={`carta-${seccion.id}`}>
+              <h3 class="carta__title" id={`carta-${seccion.id}`}>{seccion.titulo}</h3>
+              <ul class="items">
+                {seccion.items.map((plato) => (
+                  <li class="item">
+                    <div class="item__row">
+                      <span class="item__name">{plato.nombre}</span>
+                      <span class="item__dots" aria-hidden="true" />
+                      <span class="item__price">{pesos(plato.precio)}</span>
+                    </div>
+                    <p class="item__desc">{plato.detalle}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+        <p class="carta__note">Precios en pesos argentinos, con impuestos incluidos. Consulte por opciones sin gluten.</p>
+      </div>
+    </div>
+  </div>
+</section>

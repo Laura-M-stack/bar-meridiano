@@ -1,0 +1,44 @@
+---
+import Fan from './Fan.astro';
+import Divider from './Divider.astro';
+import { site } from '../data/site';
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="container hero__inner">
+    <p class="eyebrow">{site.kind} · {site.neighborhood}</p>
+    <Fan class="hero__medallion" />
+    <h1 class="hero__title" id="hero-title">
+      <span class="hero__title-small">Bar</span>
+      <span class="hero__title-big gold-text">Meridiano</span>
+    </h1>
+    <Divider />
+    <p class="hero__lead">{site.tagline}</p>
+    <div class="hero__actions">
+      <a class="btn btn--gold" href="#reservas">Reservar mesa</a>
+      <a class="btn btn--outline" href="#carta">Ver la carta</a>
+    </div>
+    <p class="status" data-status data-open="false" role="status">
+      <span class="status__dot" aria-hidden="true"></span>
+      <span data-status-text>Martes a domingo · desde las 19 h</span>
+    </p>
+  </div>
+</section>
+
+<script>
+  import { estadoAhora } from '../lib/horario';
+
+  const box = document.querySelector<HTMLElement>('[data-status]');
+  const text = document.querySelector<HTMLElement>('[data-status-text]');
+
+  function actualizar() {
+    if (!box || !text) return;
+    const e = estadoAhora();
+    box.dataset.open = String(e.abierto);
+    text.textContent = e.texto;
+  }
+
+  actualizar();
+  // El estado cambia con la hora: refrescar cada minuto.
+  setInterval(actualizar, 60_000);
+</script>
