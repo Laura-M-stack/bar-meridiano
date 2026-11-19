@@ -61,7 +61,7 @@ export function estadoAhora(ahora: Date = new Date()): Estado {
     return { abierto: false, texto: `Cerrado · abre hoy a las ${hhmm(hoy.abre)}` };
   }
 
-  // Ya cerró hoy (o hoy no abre): buscar el próximo día con servicio.
+  // Ya cerró hoy (u hoy no abre): buscar el próximo día con servicio.
   for (let i = 1; i <= 7; i++) {
     const d = (dia + i) % 7;
     const f = HORARIO[d];
